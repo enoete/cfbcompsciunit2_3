@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ADT Lab — Choosing the Right Structure</title>
+
+<!-- ===== lesson manifest: read by the hub's sync script ===== -->
+<meta property="og:title" content="ADT Lab — Choosing the Right Structure">
+<meta property="og:description" content="A practice lab, not a re-teach: five real applications — undo, a support queue, a playlist, a contact lookup, a live leaderboard — where you decide which structure fits, then build the piece that matters.">
+<meta property="og:site_name" content="CS Unit 2 · CFBC">
+<meta name="description" content="Application lab for stacks, queues, linked lists, searching and sorting. Five scenarios, each building on the last, with guided hint-scaffolded reasoning, fill-in code, and a final drag-and-drop structure-choice game.">
+<meta name="theme-color"        content="#B0286B">
+<meta name="lesson:duration"    content="100 min">
+<meta name="lesson:difficulty"  content="Core">
+<meta name="lesson:objectives"  content="5">
+<meta name="lesson:questions"   content="16">
+<meta name="lesson:sections"    content="8">
+<meta name="lesson:topics"      content="Stacks,Queues,Linked lists,Linear search,Binary search,Insertion sort,Choosing a structure">
+<meta name="lesson:activities"  content="Undo stack,Support queue,Playlist insert and delete,Contact lookup,Live leaderboard,Choose your structure,Self-check">
+<meta name="lesson:updated"     content="2026-09-30">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDF1F0; --card:#FFFFFF; --grid:#D8E0DF;
+  --ink:#12262C; --ink2:#41565D; --ink3:#6B7F85;
+  --cmp:#1668D8;   --cmp-s:#DEEAFB;
+  --find:#D97706;  --find-s:#FDF0DC;
+  --swap:#BC3A2C;  --swap-s:#FAE3E0;
+  --done:#0F7A5A;  --done-s:#DDF0E9;
+  --out:#9AAAAE;   --out-s:#EDEFEF;
+  --lab:#B0286B;   --lab-s:#FBE3EE;
+  --null:#93A5A9;
+  --r:4px;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --ui:"Space Grotesk",system-ui,-apple-system,sans-serif;
+  --serif:"Source Serif 4",Georgia,serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:var(--barh,80px)}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:17px;line-height:1.62;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px;-webkit-text-size-adjust:100%}
+h1,h2,h3,h4,h5,.ui{font-family:var(--ui)}
+code,pre,.mono{font-family:var(--mono)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+.col{max-width:none}
+.col > p, .col > ul, .col > ol, .col > h3, .col > h4, .col > .note{max-width:72ch}
+.col > .lab, .col > table, .col > .sortgame{max-width:none}
+.lab-body > p, .lab-body > ul, .lab-body > ol{max-width:80ch}
+main{padding-bottom:110px}
+
+header.topbar{position:sticky;top:0;z-index:60;background:#EDF1F0;border-bottom:2px solid var(--ink)}
+header.topbar.stuck{box-shadow:0 6px 16px -10px rgba(18,38,44,.55)}
+.bar-in{max-width:1180px;margin:0 auto;padding:7px 20px;display:flex;align-items:flex-start;gap:16px}
+.brand{padding-top:5px;font-family:var(--ui);font-weight:700;font-size:15px;white-space:nowrap;letter-spacing:-.01em;flex:none}
+.brand .sub{color:var(--lab)}
+.navwrap{flex:1;min-width:0}
+nav.jump{display:flex;flex-wrap:wrap;gap:3px;overflow:visible}
+nav.jump a{font-family:var(--ui);font-size:13px;font-weight:500;text-decoration:none;color:var(--ink2);
+  padding:6px 11px 6px 8px;border-radius:var(--r);white-space:nowrap;display:flex;align-items:center;gap:6px}
+nav.jump a b{font-size:10.5px;font-weight:700;background:var(--grid);color:var(--ink2);border-radius:3px;padding:1px 5px;line-height:1.5;flex:none}
+nav.jump a:hover{background:var(--lab-s);color:var(--lab)}
+nav.jump a:hover b{background:var(--lab);color:#fff}
+nav.jump a.on{background:var(--ink);color:#fff}
+nav.jump a.on b{background:var(--lab);color:#fff}
+nav.jump a.home{color:var(--lab);font-weight:700}
+nav.jump a.home b{background:var(--lab);color:#fff}
+nav.jump a.home:hover{background:var(--lab-s)}
+@media(max-width:1169px){.brand .sub{display:none}nav.jump a span{display:none}nav.jump a.on span{display:inline}nav.jump a{padding:6px 8px;gap:5px}}
+@media(max-width:639px){nav.jump a.on span{display:none}}
+@media(max-width:439px){.brand{display:none}nav.jump a{padding:5px 5px}nav.jump a b{padding:1px 4px}}
+header.topbar.compact .brand .sub{display:none}
+header.topbar.compact nav.jump a span{display:none}
+header.topbar.compact nav.jump a.on span{display:inline}
+header.topbar.compact nav.jump a{padding:6px 8px;gap:5px}
+header.topbar.micro nav.jump a.on span{display:none}
+.prog{height:3px;background:var(--grid)}
+.prog i{display:block;height:100%;background:var(--lab);width:0;transition:width .1s linear}
+
+.hero{padding:60px 0 50px;border-bottom:2px solid var(--ink)}
+.hero h1{font-size:clamp(30px,5.6vw,54px);line-height:1.05;margin:0 0 18px;font-weight:700;letter-spacing:-.03em;max-width:19ch}
+.hero p.lede{font-size:clamp(18px,2.3vw,22px);max-width:62ch;margin:0 0 20px;color:var(--ink2)}
+.hero-note{background:var(--card);border:2px solid var(--ink);border-radius:var(--r);padding:14px 18px;max-width:66ch;font-size:15.5px}
+.hero-note a{color:var(--lab);font-weight:600}
+
+section{padding:60px 0 0;scroll-margin-top:var(--barh,80px)}
+.sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:28px}
+.sec-num{font-family:var(--ui);font-weight:700;font-size:13px;color:#fff;background:var(--ink);padding:3px 9px;border-radius:var(--r);flex:none;position:relative;top:-3px}
+.sec-head h2{font-size:clamp(22px,3.4vw,32px);margin:0;font-weight:700;letter-spacing:-.02em}
+h3{font-size:21px;margin:38px 0 12px;font-weight:600;letter-spacing:-.01em}
+h4{font-size:15.5px;margin:22px 0 8px;font-weight:600}
+p{margin:0 0 16px}
+.col ul,.col ol{padding-left:22px;margin:0 0 18px}
+li{margin-bottom:7px}
+a{color:var(--lab)}
+em.term{font-style:normal;font-weight:600;border-bottom:2px solid var(--lab)}
+code{font-size:.87em;background:#fff;border:1px solid var(--grid);padding:1px 5px;border-radius:3px;white-space:nowrap}
+.note code,.opt code{white-space:normal}
+
+.note{border-left:4px solid var(--lab);background:var(--card);padding:16px 20px;margin:24px 0;border-radius:0 var(--r) var(--r) 0;max-width:70ch}
+.note.warn{border-color:var(--swap)}
+.note.win{border-color:var(--done)}
+.note.analogy{border-color:var(--find);background:var(--find-s)}
+.note p:last-child{margin-bottom:0}
+.note-t{font-family:var(--ui);font-weight:600;font-size:14px;margin-bottom:6px;display:block;color:var(--lab)}
+.note.warn .note-t{color:var(--swap)}
+.note.win .note-t{color:var(--done)}
+.note.analogy .note-t{color:#9A5300}
+
+.btn{font-family:var(--ui);font-size:14px;font-weight:600;cursor:pointer;background:var(--ink);color:#fff;border:2px solid var(--ink);padding:8px 15px;border-radius:var(--r);transition:transform .1s,background .15s}
+.btn:hover{background:#000}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:var(--lab-s);border-color:var(--lab);color:var(--lab)}
+.btn.sm{font-size:12.5px;padding:5px 10px}
+.btn:focus-visible,input:focus-visible,.opt:focus-visible,.chip:focus-visible,a:focus-visible{outline:3px solid var(--find);outline-offset:2px}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:14px 0}
+
+.lab{background:var(--card);border:2px solid var(--ink);border-radius:var(--r);margin:30px 0;overflow:hidden}
+.lab-head{background:var(--ink);color:#fff;padding:11px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.lab-head h4{margin:0;font-size:15px;font-weight:600;color:#fff}
+.lab-kind{font-family:var(--ui);font-size:11px;font-weight:700;letter-spacing:.06em;background:var(--lab);padding:2px 7px;border-radius:3px}
+.lab-body{padding:20px}
+.lab-body>p:first-child{margin-top:0}
+.lab-body p,.lab-body li{font-size:16px}
+.stage{background:var(--paper);border:1px dashed var(--ink3);border-radius:var(--r);padding:22px 14px;margin:14px 0;overflow-x:auto;min-height:110px;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.stage-cap{font-family:var(--ui);font-size:12px;color:var(--ink3);text-align:center;margin-top:10px}
+.readout{font-family:var(--mono);font-size:13.5px;background:var(--ink);color:#DDE8EA;padding:12px 15px;border-radius:var(--r);margin:14px 0;min-height:26px;white-space:pre-wrap;line-height:1.6}
+.readout .k{color:#7EB8F5}.readout .g{color:#6FD3AC}.readout .r{color:#F79A8E}.readout .y{color:#F5C56B}
+
+/* ---- your-call / step-locked options (shared with quiz) ---- */
+.q{background:var(--card);border:2px solid var(--ink);border-radius:var(--r);padding:18px 20px;margin:16px 0}
+.q .qt{font-family:var(--ui);font-weight:600;font-size:16px;margin-bottom:12px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border:2px solid var(--grid);border-radius:var(--r);margin-bottom:8px;cursor:pointer;font-size:15.5px;background:#fff}
+.opt:hover{border-color:var(--lab)}
+.opt.right{border-color:var(--done);background:var(--done-s)}
+.opt.wrong{border-color:var(--swap);background:var(--swap-s)}
+.opt .mk{font-family:var(--ui);font-weight:700;flex:none;color:var(--ink3)}
+.fb{font-size:15px;padding:11px 14px;border-radius:var(--r);margin-top:10px;display:none}
+.fb.show{display:block}
+.fb.good{background:var(--done-s);border-left:4px solid var(--done)}
+.fb.bad{background:var(--swap-s);border-left:4px solid var(--swap)}
+.tick{color:var(--done);font-weight:700}
+.hintbtn{font-family:var(--ui);font-size:12.5px;font-weight:600;color:var(--find);background:none;border:none;cursor:pointer;padding:2px 0;margin:2px 0 10px;text-decoration:underline;text-underline-offset:2px}
+.hinttext{font-size:14.5px;background:var(--find-s);border-left:4px solid var(--find);padding:9px 12px;border-radius:0 var(--r) var(--r) 0;margin:0 0 12px;display:none}
+.hinttext.show{display:block}
+
+/* ---- fill-in-the-blank code ---- */
+.fill{background:var(--ink);color:#E4EDEF;font-family:var(--mono);font-size:13.5px;line-height:2.25;padding:16px 18px;border-radius:var(--r);overflow-x:auto;margin:14px 0;white-space:pre-wrap}
+.fill .blank{font-family:var(--mono);font-size:13px;background:#0A181D;color:#fff;border:2px dashed var(--lab);border-radius:3px;padding:3px 6px;width:14ch;text-align:center}
+.fill .blank.good{border-style:solid;border-color:var(--done);color:#6FD3AC}
+.fill .blank.bad{border-style:solid;border-color:var(--swap);color:#F79A8E}
+.cm{color:#7D959B}.kw{color:#7EB8F5}.fn{color:#F5C56B}.tp{color:#6FD3AC}
+
+/* ---- stack visual ---- */
+.stkpair{display:flex;align-items:flex-end;gap:8px}
+.stk{display:flex;flex-direction:column-reverse;border:2px solid var(--ink);width:190px;background:#fff}
+.stkitem{height:42px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:14px;border-top:1px solid var(--grid);transition:background .2s,border-color .2s}
+.stkitem:first-child{border-top:none}
+.stkitem.top{background:var(--find-s);font-weight:700;color:var(--find)}
+.stklab{font-family:var(--ui);font-size:11px;font-weight:700;color:var(--ink3);text-align:center;margin-top:6px}
+
+/* ---- queue visual ---- */
+.qline{display:flex;border:2px solid var(--ink);background:#fff}
+.qitem{width:78px;height:50px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12.5px;border-right:1px solid var(--grid);text-align:center;padding:0 4px}
+.qitem:last-child{border-right:none}
+.qitem.front{background:var(--find-s);font-weight:700;color:var(--find)}
+.qends{display:flex;justify-content:space-between;width:100%;max-width:var(--qw,340px);font-family:var(--ui);font-size:11px;font-weight:700;color:var(--ink3);margin-top:6px}
+
+/* ---- linked list visual ---- */
+.chn{display:flex;align-items:center;min-width:max-content}
+.cnode{display:flex;border:2px solid var(--ink);border-radius:4px;overflow:hidden;background:#fff}
+.cnode .cdata{width:70px;height:42px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:13px;padding:0 4px;text-align:center}
+.cnode .cnext{width:22px;height:42px;background:var(--paper);border-left:1px solid var(--grid)}
+.cnode.new .cdata{background:var(--find-s);color:var(--find)}
+.carrow{font-family:var(--ui);color:var(--ink3);padding:0 6px;font-size:16px}
+.cnull{font-family:var(--mono);font-size:12px;color:var(--ink3);padding:0 8px}
+
+/* ---- array visual (search / sort) ---- */
+.arr{display:flex;gap:6px;justify-content:center;flex-wrap:nowrap;min-width:max-content;margin:0 auto}
+.acol{display:flex;flex-direction:column;align-items:center;gap:5px}
+.acell{width:52px;height:50px;border:2px solid var(--ink);border-radius:4px;background:#fff;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-weight:700;font-size:16px;transition:background .2s,border-color .2s,transform .25s}
+.acell.cmp{background:var(--cmp-s);border-color:var(--cmp);transform:translateY(-6px)}
+.acell.find{background:var(--find-s);border-color:var(--find);transform:translateY(-6px)}
+.acell.swap{background:var(--swap-s);border-color:var(--swap)}
+.acell.done{background:var(--done-s);border-color:var(--done)}
+.acell.gap{border-style:dashed;color:var(--grid)}
+.aidx{font-family:var(--mono);font-size:11px;color:var(--ink3)}
+.aptr{font-family:var(--ui);font-size:10.5px;font-weight:700;height:16px;white-space:nowrap}
+.aptr.lo{color:var(--done)}.aptr.hi{color:var(--swap)}.aptr.mid{color:var(--cmp)}
+
+/* ---- quickfire ---- */
+.qf-list{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+.qf-row{background:var(--card);border:2px solid var(--grid);border-radius:var(--r);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.qf-row .qf-s{font-size:15.5px;flex:1;min-width:220px}
+.qf-btns{display:flex;gap:8px;flex:none}
+.qf-btn{font-family:var(--ui);font-size:13px;font-weight:700;border:2px solid var(--ink);background:#fff;color:var(--ink);border-radius:var(--r);padding:6px 13px;cursor:pointer}
+.qf-btn:hover{background:var(--lab-s);border-color:var(--lab);color:var(--lab)}
+.qf-row.answered .qf-btn{pointer-events:none}
+.qf-row.right{border-color:var(--done);background:var(--done-s)}
+.qf-row.wrong{border-color:var(--swap);background:var(--swap-s)}
+.qf-row.right .qf-btn.pick,.qf-row.wrong .qf-btn.pick{opacity:1}
+.qf-why{font-size:14px;color:var(--ink2);width:100%;margin-top:2px}
+
+/* ---- sort game (drag & drop, house convention) ---- */
+.sortgame{display:flex;flex-direction:column;gap:16px;margin:16px 0}
+.pool{background:var(--paper);border:1px dashed var(--ink3);border-radius:var(--r);padding:12px;min-height:60px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start}
+.bins{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.bin{background:var(--paper);border:1px dashed var(--ink3);border-radius:var(--r);padding:10px;min-height:130px}
+.bin.over{border-color:var(--lab);border-style:solid;background:var(--lab-s)}
+.bin-h{font-family:var(--ui);font-weight:700;font-size:13px;margin-bottom:8px;color:var(--ink2)}
+.bin-b{display:flex;flex-direction:column;gap:6px;min-height:44px}
+.chip{font-family:var(--mono);font-size:12.5px;line-height:1.4;background:#fff;border:2px solid var(--ink);border-radius:3px;padding:8px 10px;
+  cursor:grab;display:flex;align-items:flex-start;gap:8px;user-select:none;touch-action:none}
+.chip:active{cursor:grabbing}
+.chip.dragging{opacity:.4}
+.chip.floatdrag{position:fixed;z-index:999;pointer-events:none;opacity:.92;box-shadow:0 8px 20px rgba(0,0,0,.25)}
+.chip .x{margin-left:auto;font-family:var(--ui);font-weight:700;font-size:14px;color:var(--ink3);cursor:pointer;border:none;background:transparent;padding:0 2px;line-height:1;flex:none}
+.chip .x:hover{color:var(--swap)}
+.chip.right{border-color:var(--done);background:var(--done-s)}
+.chip.wrong{border-color:var(--swap);background:var(--swap-s)}
+.chip .mk{font-weight:700;flex:none}
+.pool .chip{cursor:grab}
+
+table.cmp{width:100%;border-collapse:collapse;margin:20px 0;font-size:14.5px;background:#fff}
+table.cmp th,table.cmp td{border:1px solid var(--grid);padding:9px 11px;text-align:left;vertical-align:top}
+table.cmp th{background:var(--ink);color:#fff;font-family:var(--ui);font-size:12.5px;font-weight:600}
+table.cmp td:first-child{font-family:var(--ui);font-weight:600;font-size:13.5px}
+footer{border-top:2px solid var(--ink);padding:28px 0 60px;font-size:14.5px;color:var(--ink2);margin-top:40px}
+
+@media(max-width:620px){
+  body{font-size:16px}
+  .wrap{padding:0 15px}
+  .bar-in{gap:10px;padding:7px 15px}
+  .brand{font-size:13px}
+  nav.jump a{font-size:12px;padding:5px 9px 5px 6px}
+  .hero{padding:38px 0 32px}
+  section{padding:44px 0 0}
+  .lab-body{padding:15px 12px}
+  .stage{padding:16px 8px}
+  .acell{width:44px;height:46px;font-size:14px}
+  table.cmp{font-size:13px}
+  table.cmp th,table.cmp td{padding:7px 8px}
+  .fill{font-size:12px}
+  .qf-row{flex-direction:column;align-items:stretch}
+  .qf-btns{justify-content:flex-end}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="bar-in">
+    <div class="brand">ADT&nbsp;Lab<span class="sub"> // apply it</span></div>
+    <div class="navwrap" id="navwrap">
+      <nav class="jump" id="jump">
+        <a class="home" href="https://enoete.github.io/compsciu2_hub/" title="Back to the Unit 2 hub"><b>&larr;</b><span>Unit 2 hub</span></a>
+        <a href="#why"    title="Why this lab"><b>0</b><span>Why</span></a>
+        <a href="#stack"  title="Stack lab"><b>1</b><span>Stack</span></a>
+        <a href="#queue"  title="Queue lab"><b>2</b><span>Queue</span></a>
+        <a href="#list"   title="Linked list lab"><b>3</b><span>List</span></a>
+        <a href="#search" title="Searching lab"><b>4</b><span>Search</span></a>
+        <a href="#sort"   title="Sorting lab"><b>5</b><span>Sort</span></a>
+        <a href="#choose" title="Choose your structure"><b>6</b><span>Choose</span></a>
+        <a href="#quiz"   title="Self-check"><b>7</b><span>Quiz</span></a>
+      </nav>
+    </div>
+  </div>
+  <div class="prog"><i id="progbar"></i></div>
+</header>
+<main>
+
+<div class="wrap hero">
+  <h1>You already know four data structures. Now use them like you mean it.</h1>
+  <p class="lede">This isn't a re-teach — Lesson 1 built stacks, queues and linked lists from scratch, and Lesson 2 built linear search, binary search, bubble sort and selection sort. This lab is where you decide which one to reach for, when it actually matters, and watch what goes wrong when you reach for the wrong one.</p>
+  <div class="hero-note">Five short labs, each building on the one before. Every one of them: a real scenario, a decision you make yourself with reasons attached, a guided trace with hints if you're stuck, and a small piece of code to complete. Full derivations live in <a href="https://enoete.github.io/cfbcompsciunit2_1/">Lesson 1</a> and <a href="https://enoete.github.io/cfbcompsciunit2_2/">Lesson 2</a> — come back here to apply them.</div>
+</div>
+
+<!-- ============ WHY ============ -->
+<section id="why"><div class="wrap">
+  <div class="sec-head"><span class="sec-num">0</span><h2>Why this lab exists</h2></div>
+  <div class="col">
+    <p>Knowing how a stack works and knowing when to reach for one are two different skills. The first is what Lesson 1 gave you. The second only comes from being handed a problem with no label on it saying "use a stack here" — which is exactly what every real piece of software looks like.</p>
+    <p>A wrong choice of structure rarely crashes a program. It just makes it slow, or clumsy, or wrong in a way nobody notices until the data gets big. That's the gap this lab closes.</p>
+
+    <div class="note analogy"><span class="note-t">The kitchen</span>
+      <p>Plates come off a stack of clean plates from the top — the last one washed is the first one used. Orders go on a ticket rail in the order they arrive, and the chef works them left to right — first in, first out. A recipe card sends you to "see step 4," which sends you to "see the sauce card," which sends you back — a trail of pointers, not a fixed shelf position.</p>
+      <p>Three completely different real objects, three completely different structures, and nobody in that kitchen ever had to be taught the words "stack" or "queue" to use them correctly. That instinct is what these labs are trying to build in you for code.</p>
+    </div>
+
+    <h3>How each lab works</h3>
+    <ul>
+      <li><strong>The scenario.</strong> A real situation, not an abstract one.</li>
+      <li><strong>Your call.</strong> You choose the structure yourself, with reasons — the wrong options are wrong for specific, named reasons, not just "no."</li>
+      <li><strong>The guided trace.</strong> Step by step, with a hint if you want one before you answer. Get it wrong and you find out exactly what broke, without losing your place.</li>
+      <li><strong>Your turn.</strong> A small, focused piece of real code to complete.</li>
+    </ul>
+  </div>
+</div></section>
+
+<!-- ============ LAB A: STACK ============ -->
+<section id="stack"><div class="wrap">
+  <div class="sec-head"><span class="sec-num">1</span><h2>Undo / redo — the stack</h2></div>
+  <div class="col">
+    <p>You're building a text editor. Every action — typing, formatting, deleting — needs to be undoable with Ctrl+Z, most recent action first.</p>
+
+    <div class="q" id="stackCall"></div>
+
+    <div class="lab">
+      <div class="lab-head"><h4>Trace it</h4><span class="lab-kind">Guided</span></div>
+      <div class="lab-body">
+        <p>Three actions happen, in this order: type <code>"Hi"</code>, type <code>" there"</code>, apply <b>bold</b>. Each one is pushed onto the undo stack as it happens.</p>
+        <div class="stage"><div class="stkpair"><div class="stk" id="stkVisual"></div></div><div class="stklab" id="stkCap"></div></div>
+        <div id="stackSteps"></div>
+      </div>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><h4>Your turn</h4><span class="lab-kind">Code</span></div>
+      <div class="lab-body">
+        <p>A stack needs exactly two moves: push something on top, pop the top thing off. Fill in the four blanks.</p>
+        <div id="fillStack"></div>
+        <div class="row"><button class="btn sm" id="stackCheck">Check</button><button class="btn ghost sm" id="stackHint">Hint</button><button class="btn ghost sm" id="stackReveal">Reveal</button></div>
+        <div class="readout" id="stackOut">Fill in all four, then press Check.</div>
+      </div>
+    </div>
+
+    <div class="note win"><span class="note-t">Carrying forward</span>Every undo popped off in the reverse order it went on — last in, first out. A stack only ever touches <em class="term">one end</em>. A support queue needs the opposite order. Next.</div>
+  </div>
+</div></section>
+
+<!-- ============ LAB B: QUEUE ============ -->
+<section id="queue"><div class="wrap">
+  <div class="sec-head"><span class="sec-num">2</span><h2>The support line — the queue</h2></div>
+  <div class="col">
+    <p>You're building a help-desk system. Tickets arrive and must be served in the order they arrived — nobody wants the newest ticket jumping the line.</p>
+
+    <div class="q" id="queueCall"></div>
+
+    <div class="lab">
+      <div class="lab-head"><h4>Trace it</h4><span class="lab-kind">Guided</span></div>
+      <div class="lab-body">
+        <p>Three tickets arrive, in this order: <b>#1</b> printer, <b>#2</b> wifi, <b>#3</b> login.</p>
+        <div class="stage"><div class="qline" id="qVisual"></div><div class="qends" id="qCap"></div></div>
+        <div id="queueSteps"></div>
+      </div>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><h4>Your turn</h4><span class="lab-kind">Code</span></div>
+      <div class="lab-body">
+        <p>A fixed-size array queue needs one trick a stack never does: wraparound, so space freed at the front gets reused.</p>
+        <div id="fillQueue"></div>
+        <div class="row"><button class="btn sm" id="queueCheck">Check</button><button class="btn ghost sm" id="queueHint">Hint</button><button class="btn ghost sm" id="queueReveal">Reveal</button></div>
+        <div class="readout" id="queueOut">Fill in all four, then press Check.</div>
+      </div>
+    </div>
+
+    <div class="note win"><span class="note-t">Carrying forward</span>Stack and queue both only ever touch the <em class="term">ends</em>. What if you need to insert or remove something in the <em class="term">middle</em> — like pulling one song out of a playlist without shifting every song after it? Neither structure so far can do that cheaply. Next.</div>
+  </div>
+</div></section>
+
+<!-- ============ LAB C: LINKED LIST ============ -->
+<section id="list"><div class="wrap">
+  <div class="sec-head"><span class="sec-num">3</span><h2>The playlist — the linked list</h2></div>
+  <div class="col">
+    <p>You're building a playlist manager. A user needs to insert a song between two existing tracks, and remove a track, without touching anything else in memory.</p>
+
+    <div class="q" id="listCall"></div>
+
+    <div class="lab">
+      <div class="lab-head"><h4>Trace it</h4><span class="lab-kind">Guided</span></div>
+      <div class="lab-body">
+        <p>The playlist is Song A &rarr; Song B &rarr; Song C.</p>
+        <div class="stage"><div class="chn" id="lstVisual"></div></div>
+        <div id="listSteps"></div>
+      </div>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><h4>Your turn</h4><span class="lab-kind">Code</span></div>
+      <div class="lab-body">
+        <p>Insert a new node right after <code>prev</code>. Order matters here more than anywhere else in this lab.</p>
+        <div id="fillList"></div>
+        <div class="row"><button class="btn sm" id="listCheck">Check</button><button class="btn ghost sm" id="listHint">Hint</button><button class="btn ghost sm" id="listReveal">Reveal</button></div>
+        <div class="readout" id="listOut">Fill in all four, then press Check.</div>
+      </div>
+    </div>
+
+    <div class="note win"><span class="note-t">Carrying forward</span>You can now build any of the three. But once data is stored, how do you find something inside it? Try a contact lookup. Next.</div>
+  </div>
+</div></section>
+
+<!-- ============ LAB D: SEARCH ============ -->
+<section id="search"><div class="wrap">
+  <div class="sec-head"><span class="sec-num">4</span><h2>Contact lookup — searching</h2></div>
+  <div class="col">
+    <p>Five quick scenarios. For each one: does linear search or binary search fit? Pick one — you'll get the reason either way.</p>
+    <div class="qf-list" id="qfList"></div>
+
+    <div class="lab">
+      <div class="lab-head"><h4>Trace it — binary search</h4><span class="lab-kind">Guided</span></div>
+      <div class="lab-body">
+        <p>Contacts sorted by ID. Looking for <b>78</b> in <code>12 19 23 31 45 52 64 78 85 97</code> (indexes 0&ndash;9).</p>
+        <div class="stage"><div class="arr" id="binVisual"></div></div>
+        <div id="binSteps"></div>
+      </div>
+    </div>
+
+    <div class="note win"><span class="note-t">Carrying forward</span>Binary search only worked because the contacts were already sorted. Somebody had to sort them first. Who — and how? Next.</div>
+  </div>
+</div></section>
+
+<!-- ============ LAB E: SORT ============ -->
+<section id="sort"><div class="wrap">
+  <div class="sec-head"><span class="sec-num">5</span><h2>The live leaderboard — sorting</h2></div>
+  <div class="col">
+    <p>Scores arrive one at a time during a live match, and the leaderboard must stay sorted, highest first, after every single one.</p>
+
+    <div class="q" id="sortCall"></div>
+
+    <div class="lab">
+      <div class="lab-head"><h4>Trace it</h4><span class="lab-kind">Guided</span></div>
+      <div class="lab-body">
+        <p>Leaderboard so far, highest first: <code>95 88 76 64</code>. A new score, <b>82</b>, arrives.</p>
+        <div class="stage"><div class="arr" id="sortVisual"></div></div>
+        <div id="sortSteps"></div>
+      </div>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><h4>Your turn</h4><span class="lab-kind">Code</span></div>
+      <div class="lab-body">
+        <p>Insertion sort: take the next value, shift everything bigger than it one step right, drop it into the gap.</p>
+        <div id="fillSort"></div>
+        <div class="row"><button class="btn sm" id="sortCheck">Check</button><button class="btn ghost sm" id="sortHint">Hint</button><button class="btn ghost sm" id="sortReveal">Reveal</button></div>
+        <div class="readout" id="sortOut">Fill in all four, then press Check.</div>
+      </div>
+    </div>
+
+    <div class="note win"><span class="note-t">Look back</span>Insertion sort's inner loop — shift right while the neighbour is bigger — is a linear scan for the correct slot. It's the same shape as Lab 4's linear search, just moving values as it goes instead of only comparing them.</div>
+  </div>
+</div></section>
+
+<!-- ============ CHOOSE YOUR STRUCTURE ============ -->
+<section id="choose"><div class="wrap">
+  <div class="sec-head"><span class="sec-num">6</span><h2>Choose your structure</h2></div>
+  <div class="col">
+    <p>Ten new scenarios — none of them the ones you just worked through. Drag each into the structure that fits. Tap a card to cycle it through the bins if dragging isn't convenient.</p>
+    <div class="sortgame" id="chooseGame">
+      <div class="pool" data-pool></div>
+      <div class="bins">
+        <div class="bin" data-bin="stack"><div class="bin-h">Stack</div><div class="bin-b" data-bin-body></div></div>
+        <div class="bin" data-bin="queue"><div class="bin-h">Queue</div><div class="bin-b" data-bin-body></div></div>
+        <div class="bin" data-bin="list"><div class="bin-h">Linked list</div><div class="bin-b" data-bin-body></div></div>
+        <div class="bin" data-bin="sorted"><div class="bin-h">Sorted array</div><div class="bin-b" data-bin-body></div></div>
+      </div>
+    </div>
+    <div class="row"><button class="btn" id="chooseCheck">Check my answers</button><button class="btn ghost" id="chooseReset">Reset</button></div>
+    <div class="readout" id="chooseOut">Sort all ten, then press Check.</div>
+
+    <table class="cmp">
+      <tr><th>Structure</th><th>Best at</th><th>Struggles with</th></tr>
+      <tr><td>Stack</td><td>Undo, call frames, matching brackets — anything "most recent first"</td><td>Anything that must come out in arrival order</td></tr>
+      <tr><td>Queue</td><td>Ticket lines, print jobs — anything "arrival order"</td><td>Anything that must come out most-recent-first</td></tr>
+      <tr><td>Linked list</td><td>Insert/delete anywhere without shifting the rest</td><td>Jumping straight to the middle — no random access</td></tr>
+      <tr><td>Sorted array</td><td>Binary search — finding one item fast, repeatedly</td><td>Inserting one new item, which still means shifting</td></tr>
+    </table>
+  </div>
+</div></section>
+
+<!-- ============ QUIZ ============ -->
+<section id="quiz"><div class="wrap">
+  <div class="sec-head"><span class="sec-num">7</span><h2>Self-check</h2></div>
+  <div class="col">
+    <p>Sixteen questions across all five labs. Nothing is recorded — every answer comes with a full explanation.</p>
+    <div id="quizHost"></div>
+    <div class="readout" id="quizScore" style="font-size:15px">Answered 0 of 16.</div>
+  </div>
+</div></section>
+
+<footer><div class="wrap col">
+  <p><strong>Where to go next.</strong> Pick one more real scenario from your own life — a bus route, a group chat, a spreadsheet you use — and work out which structure it actually is before you check yourself. That habit is the whole point of this lab.</p>
+  <p class="mini">CFBC Computer Science &mdash; ADT Lab, a companion to Lessons 1 and 2. Nothing on this page is recorded or transmitted.</p>
+</div></footer>
+</main>
+<script>
+(function(){
+"use strict";
+const $  = (s,r)=>(r||document).querySelector(s);
+const $$ = (s,r)=>[...(r||document).querySelectorAll(s)];
+const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const say=(el,h)=>{ if(el) el.innerHTML=h; };
+const K=s=>`<span class="k">${s}</span>`, G=s=>`<span class="g">${s}</span>`,
+      R=s=>`<span class="r">${s}</span>`, Y=s=>`<span class="y">${s}</span>`;
+
+/* ============================================================ VISUAL RENDERERS */
+function stackViz(items){
+  return items.slice().reverse().map((v,i)=>`<div class="stkitem ${i===0?'top':''}">${esc(v)}</div>`).join('')
+    || '<div class="stkitem" style="color:var(--ink3);font-style:italic">empty</div>';
+}
+function queueViz(items){
+  if(!items.length) return {html:'<div class="qitem front" style="color:var(--ink3);font-style:italic">empty</div>',caps:''};
+  const html=items.map((v,i)=>`<div class="qitem ${i===0?'front':''}">${esc(v)}</div>`).join('');
+  return {html, caps:`<span>&larr; FRONT (next to be served)</span><span>BACK (newest arrival) &rarr;</span>`};
+}
+function chainViz(nodes){
+  return '<div class="chn">'+nodes.map((n,i)=>
+    `<div class="cnode ${n.cls||''}"><div class="cdata">${esc(n.v)}</div><div class="cnext"></div></div>`+
+    `<span class="carrow">&rarr;</span>`).join('')+'<span class="cnull">NULL</span></div>';
+}
+function arrHTML(vals,st,ptr){
+  st=st||{}; ptr=ptr||{};
+  return '<div class="arr">'+vals.map((v,i)=>
+    `<div class="acol"><div class="aptr ${(ptr[i]||'').split(':')[1]||''}">${(ptr[i]||'').split(':')[0]||''}</div>`+
+    `<div class="acell ${st[i]||''}">${v===null?'':v}</div><div class="aidx">${i}</div></div>`).join('')+'</div>';
+}
+
+/* ============================================================ STEP-LOCKED helper */
+function stepLocked(host, steps){
+  let i=0;
+  function draw(){
+    if(i>=steps.length) return;
+    const s=steps[i];
+    const box=document.createElement('div'); box.className='q'; box.style.marginTop='14px';
+    box.innerHTML = `<div class="qt">${s.prompt}</div>`+
+      (s.hint?`<button class="hintbtn" type="button">&#128161; Hint</button><div class="hinttext">${s.hint}</div>`:'')+
+      s.options.map((o,k)=>`<div class="opt" data-k="${k}"><span class="mk">${'ABCD'[k]}</span><span>${o.t}</span></div>`).join('')+
+      `<div class="fb"></div>`;
+    host.appendChild(box);
+    if(s.hint){
+      const hb=$('.hintbtn',box), ht=$('.hinttext',box);
+      hb.addEventListener('click',()=>{ ht.classList.toggle('show'); });
+    }
+    const fb=$('.fb',box);
+    $$('.opt',box).forEach((el,k)=>{
+      el.addEventListener('click',()=>{
+        if(box.dataset.locked) return;
+        const o=s.options[k];
+        if(o.ok){
+          box.dataset.locked='1';
+          el.classList.add('right');
+          $$('.opt',box).forEach(x=>{ if(x!==el){ x.style.opacity='.55'; x.style.pointerEvents='none'; } });
+          fb.className='fb show good'; fb.innerHTML='<b class="tick">&#10003; </b>'+o.fb;
+          if(s.after) s.after();
+          i++;
+          setTimeout(draw, RM?0:500);
+        } else {
+          el.classList.add('wrong');
+          fb.className='fb show bad'; fb.innerHTML='<b>Not quite. </b>'+o.fb;
+        }
+      });
+    });
+  }
+  draw();
+}
+
+/* ============================================================ MCQ (shared: your-call + final quiz) */
+function renderMCQ(host,rawQs,onAnswer){
+  if(!host) return;
+  host.innerHTML='';
+  rawQs.forEach((q,i)=>{
+    const box=document.createElement('div'); box.className='q';
+    box.innerHTML=`<div class="qt">${rawQs.length>1?(i+1)+'. ':''}${q.q}</div>`+
+      q.c.map((c,j)=>`<div class="opt" data-o="${j}"><span class="mk">${'ABCD'[j]}</span><span>${c}</span></div>`).join('')+
+      `<div class="fb"></div>`;
+    host.appendChild(box);
+    const fb=$('.fb',box);
+    $$('.opt',box).forEach(o=>o.addEventListener('click',()=>{
+      if(box.dataset.locked) return; box.dataset.locked='1';
+      const j=+o.dataset.o, right=j===q.a;
+      $$('.opt',box).forEach((x,k)=>{ if(k===q.a) x.classList.add('right'); else if(k===j) x.classList.add('wrong'); });
+      fb.className='fb show '+(right?'good':'bad');
+      fb.innerHTML=(right?'<b class="tick">&#10003; Correct. </b>':'<b>Not quite. </b>')+q.e;
+      if(onAnswer) onAnswer(right);
+    }));
+  });
+}
+
+/* ============================================================ fill-in-the-blank */
+function fillLab(hostSel,html,answers,btns,outSel){
+  const host=$(hostSel), out=$(outSel); if(!host) return;
+  host.innerHTML=`<div class="fill">${html}</div>`;
+  const ins=$$('input',host);
+  const norm=s=>s.replace(/\s+/g,'').replace(/;+$/,'').toLowerCase();
+  $(btns.check).onclick=()=>{
+    let ok=0;
+    ins.forEach((inp,k)=>{
+      const good=answers[k].a.includes(norm(inp.value));
+      inp.classList.toggle('good',good);
+      inp.classList.toggle('bad',!good&&inp.value.trim()!=='');
+      if(good) ok++;
+    });
+    say(out, ok===ins.length
+      ? `${G('All '+ins.length+' correct.')} Close the page and write the whole function from a blank file — that's the part that sticks.`
+      : `${Y(ok+' of '+ins.length+' correct.')} Red boxes are wrong, empty ones untouched. Try Hint if you're stuck on one.`);
+  };
+  $(btns.hint).onclick=()=>say(out,answers.map((b,k)=>`${K('blank '+(k+1))}  ${b.hint}`).join('\n'));
+  $(btns.reveal).onclick=()=>{
+    ins.forEach((i,k)=>{ i.value=answers[k].show; i.classList.add('good'); i.classList.remove('bad'); });
+    say(out,`${Y('Revealed.')} Reload and try it cold before you move on.`);
+  };
+}
+
+/* ============================================================ LAB A — STACK */
+renderMCQ($('#stackCall'),[{
+  q:'Which structure fits &ldquo;undo the most recent action first&rdquo;?',
+  c:['Stack — last action pushed is the first one undone','Queue — actions get undone in the order they happened','Linked list — walk back through every action','It doesn&rsquo;t matter, all three give the same result'],a:0,
+  e:'Undo needs LIFO: the newest action is always the first one reversed. A queue would undo your very first keystroke before touching your most recent one — exactly backwards.'
+}]);
+
+(function(){
+  let stk=['Type "Hi"','Type " there"','Apply bold'];
+  const draw=(cap)=>{ $('#stkVisual').innerHTML=stackViz(stk); $('#stkCap').textContent=cap; };
+  draw('three actions already pushed, in this order');
+  stepLocked($('#stackSteps'),[
+    {prompt:'Press Ctrl+Z once. Which action gets undone (popped)?',
+     hint:'The stack only ever gives up whatever was pushed most recently.',
+     options:[
+      {t:'Apply bold',ok:true,fb:'Right — it was pushed last, so it sits on top and pops first.'},
+      {t:'Type "Hi"',ok:false,fb:'That was the FIRST push — it&rsquo;s buried at the bottom, not on top.'},
+      {t:'Type " there"',ok:false,fb:'Close, but bold was pushed after it, so bold is the one on top.'},
+      {t:'Nothing — the stack is empty',ok:false,fb:'Three actions were pushed. The stack has three items in it.'}],
+     after:()=>{ stk.pop(); draw('after 1 undo'); }},
+    {prompt:'Press Ctrl+Z again. Which action gets undone now?',
+     hint:'Bold is already gone. What&rsquo;s on top of what&rsquo;s left?',
+     options:[
+      {t:'Type " there"',ok:true,fb:'Right — with bold already popped, this is now the top of the stack.'},
+      {t:'Apply bold',ok:false,fb:'That one was already undone on the last press — it&rsquo;s gone from the stack.'},
+      {t:'Type "Hi"',ok:false,fb:'Not yet — that one is still underneath " there".'},
+      {t:'Nothing happens',ok:false,fb:'Two items were pushed after "Hi" — one has already popped, one remains.'}],
+     after:()=>{ stk.pop(); draw('after 2 undos'); }},
+    {prompt:'If you pressed Ctrl+Z a THIRD time, what would happen?',
+     hint:'Count what&rsquo;s left in the stack right now — is it really empty?',
+     options:[
+      {t:'"Hi" gets undone, and the stack becomes completely empty',ok:true,fb:'Right. One item remains after two pops, and popping it empties the stack.'},
+      {t:'Nothing — the stack is already empty',ok:false,fb:'Not yet. Two pops from three pushes leaves exactly one item behind.'},
+      {t:'"Apply bold" gets undone again',ok:false,fb:'Bold already popped on the first press — it can&rsquo;t pop twice.'},
+      {t:'The editor shows an error',ok:false,fb:'Popping the last real item is completely normal — no error until you pop an already-empty stack.'}],
+     after:()=>{ stk.pop(); draw('stack empty'); }}
+  ]);
+})();
+
+fillLab('#fillStack',
+`<span class="kw">int</span> stack[MAX];
+<span class="kw">int</span> top = <input class="blank" style="width:6ch" placeholder="1">;
+
+<span class="kw">void</span> <span class="fn">push</span>(<span class="kw">int</span> val) {
+    <span class="kw">if</span> (top == MAX - 1) { <span class="fn">printf</span>(<span class="tp">"Stack full\\n"</span>); <span class="kw">return</span>; }
+    stack[<input class="blank" style="width:8ch" placeholder="2">] = val;
+}
+
+<span class="kw">int</span> <span class="fn">pop</span>(<span class="kw">void</span>) {
+    <span class="kw">if</span> (top == <input class="blank" style="width:6ch" placeholder="3">) { <span class="fn">printf</span>(<span class="tp">"Stack empty\\n"</span>); <span class="kw">return</span> -1; }
+    <span class="kw">return</span> stack[<input class="blank" style="width:8ch" placeholder="4">];
+}`,
+[{a:['-1'],hint:'No items yet — top starts before index 0.',show:'-1'},
+ {a:['++top'],hint:'Move up FIRST, then write the new value there.',show:'++top'},
+ {a:['-1'],hint:'Same empty check as the initial value.',show:'-1'},
+ {a:['top--'],hint:'Read the current top, THEN move the pointer down.',show:'top--'}],
+{check:'#stackCheck',hint:'#stackHint',reveal:'#stackReveal'},'#stackOut');
+
+/* ============================================================ LAB B — QUEUE */
+renderMCQ($('#queueCall'),[{
+  q:'Three tickets are waiting. Which one gets served first?',
+  c:['#3 login — it&rsquo;s the most recent','#1 printer — it arrived first','#2 wifi, chosen at random','Whichever the agent feels like'],a:1,
+  e:'A support queue is FIFO — first in, first out. Picking #3 first is stack thinking (last in, first out) applied to the wrong structure — the single most common mix-up between the two.'
+}]);
+
+(function(){
+  let q=['#1 printer','#2 wifi','#3 login'];
+  const draw=()=>{ const v=queueViz(q); $('#qVisual').innerHTML=v.html; $('#qCap').innerHTML=v.caps; };
+  draw();
+  stepLocked($('#queueSteps'),[
+    {prompt:'Which ticket gets served (dequeued) first?',
+     hint:'FIFO — the one that has been waiting longest.',
+     options:[
+      {t:'#1 printer',ok:true,fb:'Right — it arrived first, so it&rsquo;s at the front and leaves first.'},
+      {t:'#3 login',ok:false,fb:'That&rsquo;s stack thinking — most recent first. A queue does the opposite.'},
+      {t:'#2 wifi',ok:false,fb:'It arrived after #1, so #1 is still ahead of it in line.'},
+      {t:'Whichever the agent prefers',ok:false,fb:'That&rsquo;s not how a queue enforces order — arrival order decides, not preference.'}],
+     after:()=>{ q.shift(); draw(); }},
+    {prompt:'A new ticket, #4 password reset, arrives right after #1 is served. Where does it join the line?',
+     hint:'New arrivals join at whichever end is NOT the front.',
+     options:[
+      {t:'At the back, behind #3',ok:true,fb:'Right — new arrivals always join at the back and wait their turn.'},
+      {t:'At the front, ahead of #2',ok:false,fb:'That would let it jump the whole line — the opposite of first-come-first-served.'},
+      {t:'Somewhere in the middle',ok:false,fb:'A queue has no concept of inserting mid-line — only front and back.'},
+      {t:'It replaces #2',ok:false,fb:'Nothing gets overwritten — #2 is still waiting, untouched.'}],
+     after:()=>{ q.push('#4 reset'); draw(); }},
+    {prompt:'Two more tickets are served in a row. Which ticket is now waiting at the front?',
+     hint:'Two tickets are currently ahead of #4. Serve them both.',
+     options:[
+      {t:'#4',ok:true,fb:'Right — #2 and #3 have now both been served, leaving #4 alone at the front.'},
+      {t:'#2',ok:false,fb:'#2 was one of the two just served — it&rsquo;s already gone.'},
+      {t:'#3',ok:false,fb:'#3 was the other one just served.'},
+      {t:'The queue is empty',ok:false,fb:'Not quite — #4 arrived after #1 was served, so one ticket remains.'}],
+     after:()=>{ q.shift(); q.shift(); draw(); }}
+  ]);
+})();
+
+fillLab('#fillQueue',
+`<span class="kw">int</span> queue[MAX];
+<span class="kw">int</span> front = 0, rear = -1, count = 0;
+
+<span class="kw">void</span> <span class="fn">enqueue</span>(<span class="kw">int</span> val) {
+    <span class="kw">if</span> (count == MAX) { <span class="fn">printf</span>(<span class="tp">"Queue full\\n"</span>); <span class="kw">return</span>; }
+    rear = <input class="blank" style="width:13ch" placeholder="1">;
+    queue[rear] = val;
+    <input class="blank" style="width:9ch" placeholder="2">;
+}
+
+<span class="kw">int</span> <span class="fn">dequeue</span>(<span class="kw">void</span>) {
+    <span class="kw">if</span> (count == 0) { <span class="fn">printf</span>(<span class="tp">"Queue empty\\n"</span>); <span class="kw">return</span> -1; }
+    <span class="kw">int</span> val = <input class="blank" style="width:11ch" placeholder="3">;
+    front = <input class="blank" style="width:13ch" placeholder="4">;
+    count--;
+    <span class="kw">return</span> val;
+}`,
+[{a:['(rear+1)%max'],hint:'Move one step, then wrap back to 0 if you run off the end.',show:'(rear + 1) % MAX'},
+ {a:['count++'],hint:'One more item is now in the queue.',show:'count++'},
+ {a:['queue[front]'],hint:'The front is always the next one waiting.',show:'queue[front]'},
+ {a:['(front+1)%max'],hint:'Same wraparound trick as enqueue used for rear.',show:'(front + 1) % MAX'}],
+{check:'#queueCheck',hint:'#queueHint',reveal:'#queueReveal'},'#queueOut');
+
+/* ============================================================ LAB C — LINKED LIST */
+renderMCQ($('#listCall'),[{
+  q:'Why not just use an array for the playlist?',
+  c:['Arrays can&rsquo;t hold song names','Inserting or deleting in the middle of an array means shifting every element after it — a linked list just relinks two pointers','Arrays are always slower than linked lists','It genuinely doesn&rsquo;t matter which you pick'],a:1,
+  e:'An array insert/delete in the middle costs O(n) — everything after the gap has to shift. A linked list insert/delete is O(1) once you&rsquo;re at the right node: change a couple of pointers, done.'
+}]);
+
+(function(){
+  let nodes=[{v:'Song A'},{v:'Song B'},{v:'Song C'}];
+  const draw=()=>{ $('#lstVisual').innerHTML=chainViz(nodes); };
+  draw();
+  stepLocked($('#listSteps'),[
+    {prompt:'You insert &ldquo;Song X&rdquo; right after Song A. Which pointer must you set FIRST, before anything else changes?',
+     hint:'Whatever you change first, don&rsquo;t lose your only route to the rest of the list.',
+     options:[
+      {t:'Song X&rsquo;s next pointer, set to point at Song B',ok:true,fb:'Right — grab the reference to the rest of the list before touching anything that currently holds it.'},
+      {t:'Song A&rsquo;s next pointer, set to point at Song X',ok:false,fb:'Do this first and you overwrite the only pointer to Song B — the rest of the playlist is instantly unreachable. This is the single most common linked-list bug.'},
+      {t:'Song B&rsquo;s next pointer',ok:false,fb:'Song B&rsquo;s pointer doesn&rsquo;t need to change at all for an insert-after.'},
+      {t:'It doesn&rsquo;t matter which order',ok:false,fb:'Order is exactly the point — one order loses data, the other doesn&rsquo;t.'}],
+     after:()=>{}},
+    {prompt:'Now finish the insert: set Song A&rsquo;s next pointer to Song X. What does the playlist look like?',
+     hint:'X is now wired to B. A just needs to point at X.',
+     options:[
+      {t:'Song A &rarr; Song X &rarr; Song B &rarr; Song C',ok:true,fb:'Right — X now sits cleanly between A and B.'},
+      {t:'Song A &rarr; Song B &rarr; Song X &rarr; Song C',ok:false,fb:'That would be inserting after B, not after A.'},
+      {t:'Song X &rarr; Song A &rarr; Song B &rarr; Song C',ok:false,fb:'That&rsquo;s inserting at the very front of the list.'},
+      {t:'Song A &rarr; Song B &rarr; Song C &rarr; Song X',ok:false,fb:'That&rsquo;s appending at the end, not inserting after A.'}],
+     after:()=>{ nodes=[{v:'Song A'},{v:'Song X',cls:'new'},{v:'Song B'},{v:'Song C'}]; draw(); }},
+    {prompt:'Now you delete Song B. What must Song X&rsquo;s next pointer become?',
+     hint:'X needs to skip straight over the node being removed.',
+     options:[
+      {t:'Song C — skip straight over the deleted node',ok:true,fb:'Right — relink around the gap and Song B is fully removed from the chain.'},
+      {t:'NULL — the list now ends at X',ok:false,fb:'That would silently chop off Song C and everything after it — a real, easy-to-miss bug.'},
+      {t:'It stays pointing at Song B',ok:false,fb:'Then Song B is still reachable — it hasn&rsquo;t actually been deleted from the list.'}],
+     after:()=>{ nodes=[{v:'Song A'},{v:'Song X',cls:'new'},{v:'Song C'}]; draw(); }}
+  ]);
+})();
+
+fillLab('#fillList',
+`<span class="kw">typedef struct</span> Node {
+    <span class="kw">int</span> data;
+    <span class="kw">struct</span> Node *next;
+} Node;
+
+<span class="kw">void</span> <span class="fn">insertAfter</span>(Node *prev, <span class="kw">int</span> val) {
+    Node *n = <input class="blank" style="width:16ch" placeholder="1">;
+    <input class="blank" style="width:11ch" placeholder="2"> = val;
+    <input class="blank" style="width:13ch" placeholder="3">;
+    <input class="blank" style="width:13ch" placeholder="4">;
+}`,
+[{a:['malloc(sizeof(node))'],hint:'Reserve real memory for the new node first.',show:'malloc(sizeof(Node))'},
+ {a:['n->data'],hint:'Store the value in the new node.',show:'n->data'},
+ {a:['n->next=prev->next'],hint:'Grab the rest of the list BEFORE prev stops pointing at it.',show:'n->next = prev->next'},
+ {a:['prev->next=n'],hint:'Only now is it safe to point prev at the new node.',show:'prev->next = n'}],
+{check:'#listCheck',hint:'#listHint',reveal:'#listReveal'},'#listOut');
+
+/* ============================================================ LAB D — SEARCH */
+(function(){
+  const Q=[
+   {s:'Contacts sorted alphabetically — looking up &ldquo;Marcus&rdquo;.',a:'binary',
+    okE:'Sorted data, one-off jump-to-the-middle lookup — exactly what binary search is for.',
+    noE:'It works, but it checks every contact before Marcus one by one. Sorted data deserves better.'},
+   {s:'A shuffled playlist — looking for one specific song.',a:'linear',
+    okE:'Unsorted, so there&rsquo;s no "middle" that means anything — you have to check each one.',
+    noE:'Binary search needs sorted data to safely discard half the list. Shuffled data breaks that promise silently.'},
+   {s:'A linked list of support tickets in arrival order — looking for ticket #47.',a:'linear',
+    noE:'A linked list can&rsquo;t jump to "the middle" — reaching it still means walking node by node, same cost as just scanning from the front.',
+    okE:'Right — no random access on a linked list, so binary search buys you nothing here.'},
+   {s:'A sorted array of 10,000 exam scores — checking whether 78 appears.',a:'binary',
+    okE:'Sorted, array, repeated-style lookup — binary search cuts this to about 14 comparisons.',
+    noE:'Linear search would work, but roughly 5,000 comparisons on average versus about 14 is a huge gap to leave on the table.'},
+   {s:'A single search you&rsquo;ll only ever do once, on unsorted data.',a:'linear',
+    okE:'Sorting costs more than the one search you actually need. Sorting only pays off across many repeated searches.',
+    noE:'You&rsquo;d have to sort first, and that sort costs far more than just checking each item once.'}
+  ];
+  const host=$('#qfList');
+  host.innerHTML=Q.map((q,i)=>`<div class="qf-row" data-i="${i}"><div class="qf-s">${q.s}</div>
+    <div class="qf-btns"><button class="qf-btn pick" data-c="linear">Linear</button><button class="qf-btn pick" data-c="binary">Binary</button></div>
+    <div class="qf-why" style="display:none"></div></div>`).join('');
+  $$('.qf-row',host).forEach((row,i)=>{
+    const q=Q[i], why=$('.qf-why',row);
+    $$('.qf-btn',row).forEach(b=>b.addEventListener('click',()=>{
+      if(row.classList.contains('answered')) return;
+      row.classList.add('answered');
+      const right=b.dataset.c===q.a;
+      row.classList.add(right?'right':'wrong');
+      why.style.display='block';
+      why.innerHTML=(right?'<b class="tick">&#10003; </b>':'<b>Not quite. </b>')+(right?q.okE:q.noE);
+    }));
+  });
+})();
+
+(function(){
+  const V=[12,19,23,31,45,52,64,78,85,97];
+  let first=0,last=9;
+  const draw=(mid,st)=>{ const ptr={}; if(mid==null){ptr[first]='lo:lo';ptr[last]='hi:hi';} else {ptr[first]='lo:lo';ptr[last]='hi:hi';ptr[mid]='mid:mid';}
+    $('#binVisual').innerHTML=arrHTML(V,st||{},ptr); };
+  draw(null,{});
+  stepLocked($('#binSteps'),[
+    {prompt:'first=0, last=9. middle = (0+9)/2 = 4 &rarr; arr[4]=45. Target is 78, and 78 &gt; 45. What happens to the search region?',
+     hint:'Too small means everything at or before the middle can be thrown away.',
+     options:[
+      {t:'first becomes middle + 1 = 5',ok:true,fb:'Right — 45 and everything left of it is too small, so the region moves right.'},
+      {t:'last becomes middle - 1 = 3',ok:false,fb:'That discards the wrong half — 78 is bigger than 45, so it can&rsquo;t be to the left.'},
+      {t:'The search ends — not found',ok:false,fb:'Far too early — there are still six elements left to check.'},
+      {t:'middle stays where it is',ok:false,fb:'The region must shrink every step, or the search would never finish.'}],
+     after:()=>{ first=5; draw(4,{4:'cmp'}); }},
+    {prompt:'New middle = (5+9)/2 = 7 &rarr; arr[7]=78. What now?',
+     hint:'Compare 78 to the target, 78.',
+     options:[
+      {t:'Found it — return index 7',ok:true,fb:'Right — the middle IS the target. Search over in just 2 comparisons.'},
+      {t:'78 &gt; 78, so move right again',ok:false,fb:'78 is not greater than 78 — they&rsquo;re equal, which means found, not "keep going".'},
+      {t:'78 &lt; 78, so move left',ok:false,fb:'Same issue — they&rsquo;re equal, not less than.'},
+      {t:'Keep halving anyway, just to be sure',ok:false,fb:'No need — an exact match ends the search immediately.'}],
+     after:()=>{ draw(7,{7:'find'}); }}
+  ]);
+})();
+
+/* ============================================================ LAB E — SORT */
+renderMCQ($('#sortCall'),[{
+  q:'Why not bubble sort the whole leaderboard every time one new score arrives?',
+  c:['Bubble sort would give the wrong answer','The rest of the list is already sorted — re-sorting everything from scratch redoes work that was already done','Bubble sort can&rsquo;t handle arrays','It genuinely makes no difference'],a:1,
+  e:'Insertion sort assumes (correctly, here) that everything except the new value is already in order, so it only has to find that one value&rsquo;s slot — far less work than re-sorting the whole thing.'
+}]);
+
+(function(){
+  let arr=[95,88,76,64];
+  const draw=(st)=>{ $('#sortVisual').innerHTML=arrHTML(arr,st||{}); };
+  draw();
+  stepLocked($('#sortSteps'),[
+    {prompt:'New score 82 arrives. Where does it belong in 95, 88, 76, 64?',
+     hint:'Find the first value smaller than 82, scanning left to right.',
+     options:[
+      {t:'Between 88 and 76',ok:true,fb:'Right — 82 is smaller than 88 but bigger than 76.'},
+      {t:'Between 95 and 88',ok:false,fb:'82 is smaller than both 95 and 88 — it can&rsquo;t sit there.'},
+      {t:'At the very end, after 64',ok:false,fb:'82 is bigger than 64 and 76 — it belongs well before the end.'},
+      {t:'At the very top, before 95',ok:false,fb:'82 is smaller than 95 — the top spot stays with the highest score.'}],
+     after:()=>{ draw({1:'cmp',2:'cmp'}); }},
+    {prompt:'To make room for 82, which values physically shift, and which way?',
+     hint:'Only values standing IN THE WAY of 82&rsquo;s correct slot need to move.',
+     options:[
+      {t:'76 and 64 shift one place right',ok:true,fb:'Right — only the values smaller than 82 that sit in its path need to move.'},
+      {t:'88 and 95 shift right',ok:false,fb:'They&rsquo;re both bigger than 82 — they&rsquo;re already correctly placed ahead of it.'},
+      {t:'Every value in the array shifts',ok:false,fb:'That&rsquo;s wasted work — 95 and 88 don&rsquo;t need to move at all.'},
+      {t:'Nothing shifts — 82 overwrites 76',ok:false,fb:'That would destroy 76&rsquo;s score completely. Shifting preserves every value.'}],
+     after:()=>{ arr=[95,88,null,76,64]; draw({2:'gap',3:'swap',4:'swap'}); }},
+    {prompt:'82 drops into the gap. What&rsquo;s the leaderboard now?',
+     hint:'The gap opened up right where 82 belongs.',
+     options:[
+      {t:'95, 88, 82, 76, 64',ok:true,fb:'Right — sorted, highest first, in exactly the shape a live leaderboard needs after every new score.'},
+      {t:'95, 88, 76, 82, 64',ok:false,fb:'That places 82 after 76, but 82 is bigger than 76 — wrong order.'},
+      {t:'95, 82, 88, 76, 64',ok:false,fb:'82 is smaller than 88, so it can&rsquo;t sit ahead of it.'},
+      {t:'82, 95, 88, 76, 64',ok:false,fb:'82 is the smallest of the top three — it can&rsquo;t lead the board.'}],
+     after:()=>{ arr=[95,88,82,76,64]; draw({2:'find'}); }}
+  ]);
+})();
+
+fillLab('#fillSort',
+`<span class="kw">void</span> <span class="fn">insertionSort</span>(<span class="kw">int</span> arr[], <span class="kw">int</span> n) {
+    <span class="kw">for</span> (<span class="kw">int</span> i = 1; i &lt; n; i++) {
+        <span class="kw">int</span> key = <input class="blank" style="width:8ch" placeholder="1">;
+        <span class="kw">int</span> j = <input class="blank" style="width:6ch" placeholder="2">;
+        <span class="kw">while</span> (j &gt;= 0 &amp;&amp; <input class="blank" style="width:12ch" placeholder="3">) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        <input class="blank" style="width:12ch" placeholder="4">;
+    }
+}`,
+[{a:['arr[i]'],hint:'The new value being inserted into the sorted-so-far region.',show:'arr[i]'},
+ {a:['i-1'],hint:'Start comparing just before the new value.',show:'i - 1'},
+ {a:['arr[j]>key'],hint:'Keep shifting while the neighbour is bigger than the key.',show:'arr[j] > key'},
+ {a:['arr[j+1]=key'],hint:'j has stopped one place before where key belongs — drop it in.',show:'arr[j + 1] = key'}],
+{check:'#sortCheck',hint:'#sortHint',reveal:'#sortReveal'},'#sortOut');
+
+/* ============================================================ CHOOSE YOUR STRUCTURE */
+function initSortGame(root){
+  const pool=$('[data-pool]',root), bins=$$('.bin',root);
+  function addX(chip){
+    if($('.x',chip)) return;
+    const b=document.createElement('button'); b.className='x'; b.type='button'; b.textContent='✕';
+    b.setAttribute('aria-label','Return to pool');
+    b.addEventListener('click',e=>{ e.stopPropagation(); toPool(chip); });
+    chip.appendChild(b);
+  }
+  function clearMark(chip){ chip.classList.remove('right','wrong'); const m=$('.mk',chip); if(m) m.remove(); }
+  function toPool(c){ const x=$('.x',c); if(x)x.remove(); clearMark(c); pool.appendChild(c); }
+  function place(c,binBody){ pool.contains(c)||c.parentElement!==binBody ? null : null; binBody.appendChild(c); addX(c); clearMark(c); }
+  $$('.chip',root).forEach(c=>{ c.tabIndex=0; wire(c); });
+  function cycle(c){
+    const order=[pool,...bins.map(b=>$('[data-bin-body]',b))];
+    const cur=order.findIndex(z=>z.contains(c));
+    const next=order[(cur+1)%order.length];
+    if(next===pool) toPool(c); else place(c,next);
+  }
+  function wire(c){
+    c.addEventListener('dragstart',e=>{ e.dataTransfer.setData('text/plain',c.dataset.id); c.classList.add('dragging'); });
+    c.addEventListener('dragend',()=>c.classList.remove('dragging'));
+    c.addEventListener('keydown',e=>{ if(e.key!=='Enter'&&e.key!==' ') return; e.preventDefault(); cycle(c); });
+    c.addEventListener('click',e=>{ if(e.target.classList.contains('x')) return; if(c.dataset.touched){ delete c.dataset.touched; return; } cycle(c); });
+    let ghost=null,ox=0,oy=0;
+    c.addEventListener('touchstart',e=>{
+      if(e.target.classList.contains('x')) return;
+      const t=e.touches[0], r=c.getBoundingClientRect();
+      ox=t.clientX-r.left; oy=t.clientY-r.top;
+      ghost=c.cloneNode(true); ghost.classList.add('floatdrag');
+      ghost.style.width=r.width+'px'; ghost.style.left=r.left+'px'; ghost.style.top=r.top+'px';
+      document.body.appendChild(ghost); c.classList.add('dragging');
+    },{passive:true});
+    c.addEventListener('touchmove',e=>{
+      if(!ghost) return; e.preventDefault(); c.dataset.touched='1';
+      const t=e.touches[0];
+      ghost.style.left=(t.clientX-ox)+'px'; ghost.style.top=(t.clientY-oy)+'px';
+      const el=document.elementFromPoint(t.clientX,t.clientY);
+      bins.forEach(b=>b.classList.toggle('over',!!el&&b.contains(el)));
+    },{passive:false});
+    c.addEventListener('touchend',e=>{
+      if(!ghost) return;
+      const t=e.changedTouches[0], el=document.elementFromPoint(t.clientX,t.clientY);
+      ghost.remove(); ghost=null; c.classList.remove('dragging');
+      bins.forEach(b=>b.classList.remove('over'));
+      if(c.dataset.touched){
+        const bin=el&&el.closest?el.closest('.bin'):null;
+        if(bin) place(c,$('[data-bin-body]',bin)); else if(el&&el.closest&&el.closest('[data-pool]')) toPool(c);
+      }
+      setTimeout(()=>{ delete c.dataset.touched; },30);
+    });
+  }
+  [pool,...bins].forEach(z=>{
+    z.addEventListener('dragover',e=>{ e.preventDefault(); if(z.classList.contains('bin')) z.classList.add('over'); });
+    z.addEventListener('dragleave',()=>z.classList.remove('over'));
+    z.addEventListener('drop',e=>{
+      e.preventDefault(); z.classList.remove('over');
+      const c=$(`.chip[data-id="${e.dataTransfer.getData('text/plain')}"]`,root); if(!c) return;
+      if(z.classList.contains('bin')) place(c,$('[data-bin-body]',z)); else toPool(c);
+    });
+  });
+  return {
+    check(answers){
+      let ok=0,total=0;
+      $$('.chip',root).forEach(c=>{
+        total++;
+        const bin=c.closest('.bin');
+        const m=document.createElement('span'); m.className='mk';
+        if(bin && bin.dataset.bin===answers[c.dataset.id]){ c.classList.add('right'); c.classList.remove('wrong'); m.textContent=' ✓'; ok++; }
+        else { c.classList.add('wrong'); c.classList.remove('right'); m.textContent=bin?' ✕':' — not placed'; }
+        const old=$('.mk',c); if(old) old.remove();
+        c.appendChild(m);
+      });
+      return {ok,total};
+    },
+    reset(){ $$('.chip',root).forEach(toPool); }
+  };
+}
+
+(function(){
+  const CARDS=[
+   {id:'back',t:'Browser back button',a:'stack'},
+   {id:'redo',t:'Redo button — the opposite of undo',a:'stack'},
+   {id:'receipt',t:'A till receipt roll — the last item scanned is the first thing voided on a mistake',a:'stack'},
+   {id:'print',t:'Printer job queue in a school computer lab',a:'queue'},
+   {id:'upnext',t:'A music app&rsquo;s &ldquo;up next&rdquo; line',a:'queue'},
+   {id:'board',t:'Boarding a plane by row number, called out in order',a:'queue'},
+   {id:'records',t:'A patient&rsquo;s medical record — visits added over years, inserted in date order, without shifting the whole file',a:'list'},
+   {id:'insert',t:'Adding a track between two existing playlist songs without moving every other track in memory',a:'list'},
+   {id:'dict',t:'A dictionary you flip open near the middle to find a word',a:'sorted'},
+   {id:'rank',t:'A leaderboard you binary-search to find one player&rsquo;s rank',a:'sorted'}
+  ];
+  const root=$('#chooseGame');
+  $('[data-pool]',root).innerHTML=CARDS.map(c=>`<div class="chip" draggable="true" data-id="${c.id}">${c.t}</div>`).join('');
+  const game=initSortGame(root);
+  $('#chooseCheck').onclick=()=>{
+    const answers={}; CARDS.forEach(c=>answers[c.id]=c.a);
+    const {ok,total}=game.check(answers);
+    say($('#chooseOut'), ok===total
+      ? `${G('All '+total+' correct.')} You&rsquo;ve just made, in a few seconds each, the same calls a real system design makes.`
+      : `${Y(ok+' of '+total+' correct.')} Green is right, red is wrong. Tap a red one to cycle it to a different bin and check again.`);
+  };
+  $('#chooseReset').onclick=()=>{ game.reset(); say($('#chooseOut'),'Sort all ten, then press Check.'); };
+})();
+
+/* ============================================================ SELF-CHECK — 16 */
+(function(){
+  const host=$('#quizHost'), score=$('#quizScore'); if(!host) return;
+  let done=0,right=0;
+  renderMCQ(host,[
+   {q:'A browser&rsquo;s back button — which structure?',c:['Queue','Stack','Linked list','Sorted array'],a:1,
+    e:'Each page visited gets pushed; back pops the most recent one off — last in, first out.'},
+   {q:'A dequeued item from a FIFO queue is always&hellip;',c:['the one that arrived most recently','the one that has been waiting longest','a random one','the smallest value'],a:1,
+    e:'FIFO — first in, first out — always serves whoever has been waiting longest.'},
+   {q:'Which operation is genuinely awkward for a plain array but cheap for a linked list?',
+    c:['Reading the last element','Inserting or deleting in the middle without shifting everything after it','Finding the length','Printing every element'],a:1,
+    e:'An array shifts every element after the gap — O(n). A linked list just relinks two pointers — O(1) once you&rsquo;re at the right node.'},
+   {q:'Binary search needs the ability to jump straight to the middle of the data. Which structure gives you that for free?',
+    c:['A linked list','An array','A stack','A queue'],a:1,
+    e:'Arrays offer random access by index. A linked list has to walk node by node even to reach &ldquo;the middle&rdquo;.'},
+   {q:'When function A calls function B, what happens to A&rsquo;s local variables while B runs?',
+    c:['They&rsquo;re pushed onto the call stack and wait there until B returns','They&rsquo;re deleted immediately','They move into a queue','They become global'],a:0,
+    e:'Every function call pushes a frame onto the call stack. It pops back off — LIFO — when that function returns.'},
+   {q:'In a linked-list insert, you set <code>prev-&gt;next</code> to the new node BEFORE setting the new node&rsquo;s own next pointer. What breaks?',
+    c:['Nothing, order never matters','You permanently lose the reference to the rest of the list','The program won&rsquo;t compile','The new node duplicates itself'],a:1,
+    e:'Once prev points at the new node, the old next-node is unreachable through prev. If you never copied that reference into the new node first, it&rsquo;s gone.'},
+   {q:'Boarding a plane by row number, lowest to highest, first-come-first-served within a row &mdash; best modeled as a&hellip;',
+    c:['Queue','Stack','Linked list','Binary search'],a:0,
+    e:'Arrival/call order determines who boards when — classic FIFO, a queue.'},
+   {q:'A stack of dinner plates at a buffet &mdash; you take from the&hellip;',
+    c:['Bottom, oldest first','Top, most recently placed first','Middle','Wherever is closest'],a:1,
+    e:'Physical stacks are LIFO by nature — you can only reach the top one.'},
+   {q:'Binary search absolutely requires the data to be&hellip;',
+    c:['Small','Sorted','An array of integers only','Free of duplicates'],a:1,
+    e:'Every halving step relies on order to safely discard one side. Unsorted data breaks that guarantee silently.'},
+   {q:'Insertion sort&rsquo;s inner while loop — shifting bigger values right until it finds the gap — is conceptually doing the same job as which earlier lab?',
+    c:['Enqueueing a ticket','Searching for the correct slot to insert into, one comparison at a time','Popping a stack','Binary search'],a:1,
+    e:'It&rsquo;s a linear scan for a boundary — the exact same shape as linear search, just shifting values as it goes.'},
+   {q:'Worst case for linear search through a linked list of n items, looking for a value at the very last node?',
+    c:['1 comparison','n comparisons','log&#8322;(n) comparisons','n/2 comparisons, always'],a:1,
+    e:'Every node has to be visited in order until the last one — n comparisons in the worst case.'},
+   {q:'The list is sorted AND linked (not an array). Why is binary search still a bad idea?',
+    c:['It is still O(log n) and always worth it','Jumping to &ldquo;the middle&rdquo; means walking from the head every time — costing just as much as scanning linearly','Linked lists cannot be sorted','Binary search only works on numbers'],a:1,
+    e:'Without random access, reaching the middle node still takes, on average, half the list — the whole speed advantage disappears.'},
+   {q:'A fixed-size array-based queue needs which trick so freed space at the front can be reused?',
+    c:['Doubling the array size','Wraparound indexing with the % operator — a circular queue','Sorting the queue','Using negative indexes'],a:1,
+    e:'The % operator wraps rear and front back to index 0 once they run off the end, reusing space dequeue already freed.'},
+   {q:'&ldquo;Last in, first out&rdquo; describes&hellip;',c:['Queue','Stack','Linked list','Binary search'],a:1,e:'That&rsquo;s the definition of a stack.'},
+   {q:'&ldquo;First in, first out&rdquo; describes&hellip;',c:['Stack','Queue','Linked list','Insertion sort'],a:1,e:'That&rsquo;s the definition of a queue.'},
+   {q:'A leaderboard where a new score arrives one at a time and the list must stay sorted after each arrival — best fit?',
+    c:['Bubble sort the whole thing from scratch every time','Insertion sort — slot the one new value into its place','Binary search alone, no sorting needed','It doesn&rsquo;t need to be sorted'],a:1,
+    e:'Everything except the new value is already sorted — insertion sort exploits exactly that, finding one slot instead of re-sorting everything.'}
+  ],ok=>{
+    done++; if(ok) right++;
+    let m=`Answered ${done} of 16 — ${right} correct.`;
+    if(done===16) m += right>=15 ? `  ${G('Excellent. You can make these calls on sight now.')}`
+      : right>=11 ? `  ${G('Solid.')} Re-read the labs behind anything you missed.`
+      : right>=7 ? `  ${Y('Halfway there.')} Redo the guided traces for the ones that tripped you up.`
+      : `  ${Y('Worth another pass through the labs from the top.')}`;
+    say(score,m);
+  });
+})();
+
+/* ============================================================ nav + progress */
+(function(){
+  const bar=$('#progbar'), head=$('header.topbar'), links=$$('#jump a'), secs=$$('main section');
+  let last=null;
+  function wrapped(){ if(!links.length) return false; return links[links.length-1].offsetTop > links[0].offsetTop + 2; }
+  function fit(){
+    head.classList.remove('compact','micro');
+    if(wrapped()) head.classList.add('compact');
+    if(wrapped()) head.classList.add('micro');
+    document.documentElement.style.setProperty('--barh',(head.offsetHeight+10)+'px');
+  }
+  function upd(){
+    const h=document.documentElement;
+    bar.style.width=(h.scrollTop/Math.max(1,h.scrollHeight-h.clientHeight)*100)+'%';
+    head.classList.toggle('stuck', h.scrollTop>4);
+    let cur=null;
+    secs.forEach(s=>{ if(s.getBoundingClientRect().top<=150) cur=s.id; });
+    if(cur!==last){ last=cur; links.forEach(a=>a.classList.toggle('on', a.getAttribute('href')==='#'+cur)); fit(); }
+  }
+  addEventListener('scroll',upd,{passive:true});
+  addEventListener('resize',()=>{ fit(); upd(); },{passive:true});
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  fit(); upd();
+})();
+})();
+</script>
+</body>
+</html>
